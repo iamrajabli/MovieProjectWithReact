@@ -1,6 +1,13 @@
 import React from "react";
 import SearchBar from "./SearchBar";
 import MovieList from "./MovieList";
+import AddMovie from "./AddMovie";
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Link
+} from "react-router-dom";
 
 class App extends React.Component {
 
@@ -11,12 +18,12 @@ class App extends React.Component {
 
     async componentDidMount() {
         // JSON-SERVER
-        const baseURL = 'https://api.themoviedb.org/3/movie/popular?api_key=d58423e31d785a086c141d1eb826a596&language=en-US&page=1';
+        const baseURL = 'http://localhost:3001/movies';
         const res = await fetch(baseURL)
         const data = await res.json();
 
         // UI
-        this.setState(({ movies: data.results }))
+        this.setState(({ movies: data }))
     }
 
     deleteMovie = (id) => {
@@ -35,7 +42,7 @@ class App extends React.Component {
 
     // FOR RETURNING FILTERED MOVIES ARRAY
     searchMovie = (movies, searchQuery) => {
-        return movies.filter(movie => movie.title.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1)
+        return movies.filter(movie => movie.name.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1)
     }
 
     render() {
@@ -43,17 +50,29 @@ class App extends React.Component {
         const findedMovies = this.searchMovie(movies, searchQuery);
 
         return (
-            <div className="container">
-                <div className="row">
-                    <div className="col-lg-12">
-                        <SearchBar searchMovie={this.setSearchQuery} />
-                    </div>
-                </div>
+            <Router>
+                <div className="container">
+                    <Switch>
 
-                <MovieList
-                    movies={findedMovies}
-                    deleteMovie={this.deleteMovie} />
-            </div>
+                        <Route exact path='/'>
+                            <div className="row">
+                                <div className="col-lg-12">
+                                    <SearchBar searchMovie={this.setSearchQuery} />
+                                </div>
+                            </div>
+
+                            <MovieList
+                                movies={findedMovies}
+                                deleteMovie={this.deleteMovie} />
+                        </Route>
+
+                        <Route exact path="/add">
+                            <AddMovie />
+                        </Route>
+
+                    </Switch>
+                </div>
+            </Router>
         )
     }
 }
