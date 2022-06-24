@@ -1,7 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 class MovieList extends React.Component {
-
 
     render() {
         const { movies, deleteMovie } = this.props;
@@ -22,7 +22,12 @@ class MovieList extends React.Component {
                                     type="button"
                                     className="btn btn-md btn-outline-danger">Delete
                                 </button>
-                                <h2><span className="badge badge-info">{movie.raiting}</span></h2>
+                                <Link
+                                    to={ `/edit/${movie.id}`}
+                                    type="button"
+                                    className="btn btn-md btn-primary">Edit
+                                </Link>
+                                <h2><span className="badge text-dark">{movie.rating}</span></h2>
                             </div>
                         </div>
                     </div>

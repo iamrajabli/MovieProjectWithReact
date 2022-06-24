@@ -2,12 +2,13 @@ import React from "react";
 import SearchBar from "./SearchBar";
 import MovieList from "./MovieList";
 import AddMovie from "./AddMovie";
+import EditMovie from "./EditMovie";
 import {
     BrowserRouter as Router,
     Switch,
-    Route,
-    Link
+    Route
 } from "react-router-dom";
+
 
 class App extends React.Component {
 
@@ -26,6 +27,7 @@ class App extends React.Component {
         this.setState(({ movies: data }))
     }
 
+    // FOR DELETING MOVIE
     deleteMovie = (id) => {
         // UI
         this.setState(({ movies }) => ({ movies: movies.filter(movie => movie.id !== id) }));
@@ -43,6 +45,37 @@ class App extends React.Component {
     // FOR RETURNING FILTERED MOVIES ARRAY
     searchMovie = (movies, searchQuery) => {
         return movies.filter(movie => movie.name.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1)
+            .sort((a, b) => (b.id - a.id))
+    }
+
+    // FOR ADDING NEW MOVIE
+    addMovie = (newMovie) => {
+
+        const baseURL = 'http://localhost:3001/movies';
+
+        fetch(baseURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newMovie)
+        });
+
+        this.setState(({ movies }) => ({ movies: [...movies, newMovie] }));
+
+    }
+
+    // FOR EDITING MOVIE
+    editMovie = (id, editedMovie) => {
+        const baseURL = `http://localhost:3001/movies/${id}`;
+
+        // EDIT JSON-SERVER
+        fetch(baseURL, {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editedMovie)
+        });
+
+        // EDIT UI
+        this.setState(({ movies }) => ({ movies: [...movies.filter(movie => movie.id != id), editedMovie] }));
     }
 
     render() {
@@ -53,23 +86,26 @@ class App extends React.Component {
             <Router>
                 <div className="container">
                     <Switch>
-
-                        <Route exact path='/'>
-                            <div className="row">
-                                <div className="col-lg-12">
-                                    <SearchBar searchMovie={this.setSearchQuery} />
+                        <Route exact path='/' render={() => (
+                            <>
+                                <div className="row">
+                                    <div className="col-lg-12">
+                                        <SearchBar searchMovie={this.setSearchQuery} />
+                                    </div>
                                 </div>
-                            </div>
 
-                            <MovieList
-                                movies={findedMovies}
-                                deleteMovie={this.deleteMovie} />
-                        </Route>
+                                <MovieList
+                                    movies={findedMovies}
+                                    deleteMovie={this.deleteMovie} />
+                            </>
+                        )} />
 
-                        <Route exact path="/add">
-                            <AddMovie />
-                        </Route>
+                        <Route exact path="/add" render={() => (<AddMovie addMovie={this.addMovie} />)} />
 
+                        <Route exact path="/edit/:id" render={(props) => (
+                            <EditMovie {...props} editMovie={this.editMovie} />
+                        )}
+                        />
                     </Switch>
                 </div>
             </Router>
