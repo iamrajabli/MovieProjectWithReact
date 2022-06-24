@@ -11,12 +11,12 @@ class App extends React.Component {
 
     async componentDidMount() {
         // JSON-SERVER
-        const baseURL = 'http://localhost:3001/movies';
+        const baseURL = 'https://api.themoviedb.org/3/movie/popular?api_key=d58423e31d785a086c141d1eb826a596&language=en-US&page=1';
         const res = await fetch(baseURL)
         const data = await res.json();
 
         // UI
-        this.setState(({ movies: data }))
+        this.setState(({ movies: data.results }))
     }
 
     deleteMovie = (id) => {
@@ -35,7 +35,7 @@ class App extends React.Component {
 
     // FOR RETURNING FILTERED MOVIES ARRAY
     searchMovie = (movies, searchQuery) => {
-        return movies.filter(movie => movie.name.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1)
+        return movies.filter(movie => movie.title.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1)
     }
 
     render() {
