@@ -8,9 +8,10 @@ import {
     Switch,
     Route
 } from "react-router-dom";
-
+import MoviesDB from "../services/MoviesDB";
 
 class App extends React.Component {
+    moviesApi = new MoviesDB();
 
     state = {
         movies: [],
@@ -18,13 +19,10 @@ class App extends React.Component {
     }
 
     async componentDidMount() {
-        // JSON-SERVER
-        const baseURL = 'http://localhost:3001/movies';
-        const res = await fetch(baseURL)
-        const data = await res.json();
 
-        // UI
-        this.setState(({ movies: data }))
+        this.moviesApi.getAllData()
+            .then(data => this.setState(({ movies: data })))
+
     }
 
     // FOR DELETING MOVIE
@@ -33,8 +31,7 @@ class App extends React.Component {
         this.setState(({ movies }) => ({ movies: movies.filter(movie => movie.id !== id) }));
 
         // JSON-SERVER
-        const baseURL = `http://localhost:3001/movies/${id}`;
-        fetch(baseURL, { method: "DELETE" });
+        this.moviesApi.deleteData(id);
     }
 
     // FOR SETTING STATE
@@ -50,35 +47,28 @@ class App extends React.Component {
 
     // FOR ADDING NEW MOVIE
     addMovie = (newMovie) => {
+        const { movies } = this.state;
+        newMovie.id = movies[movies.length - 1].id + 1;
 
-        const baseURL = 'http://localhost:3001/movies';
-
-        fetch(baseURL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newMovie)
-        });
-
+        this.moviesApi.postData(newMovie);
+        
+        // UI
         this.setState(({ movies }) => ({ movies: [...movies, newMovie] }));
 
     }
 
     // FOR EDITING MOVIE
-    editMovie = (id, editedMovie) => {
-        const baseURL = `http://localhost:3001/movies/${id}`;
+    editMovie = (id, editedData) => {
 
         // EDIT JSON-SERVER
-        fetch(baseURL, {
-            method: "PUT",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(editedMovie)
-        });
+        this.moviesApi.putData(id, editedData);
 
         // EDIT UI
-        this.setState(({ movies }) => ({ movies: [...movies.filter(movie => movie.id != id), editedMovie] }));
+        this.setState(({ movies }) => ({ movies: [...movies.filter(movie => movie.id != id), editedData] }));
     }
 
     render() {
+
         const { movies, searchQuery } = this.state;
         const findedMovies = this.searchMovie(movies, searchQuery);
 
@@ -100,7 +90,10 @@ class App extends React.Component {
                             </>
                         )} />
 
-                        <Route exact path="/add" render={() => (<AddMovie addMovie={this.addMovie} />)} />
+                        <Route
+                            exact
+                            path="/add"
+                            render={props => (<AddMovie {...props} addMovie={this.addMovie} />)} />
 
                         <Route exact path="/edit/:id" render={(props) => (
                             <EditMovie {...props} editMovie={this.editMovie} />

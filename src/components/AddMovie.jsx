@@ -7,8 +7,11 @@ class AddMovie extends React.Component {
         const newMovie = serialize(e.target, { hash: true });
         const { addMovie } = this.props;
         addMovie(newMovie);
+        this.props.history.push('/')
     }
     render() {
+      
+
         return (
             <div className="container">
                 <form

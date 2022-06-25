@@ -26,12 +26,16 @@ class EditMovie extends React.Component {
     }
 
     handleFormSubmit = e => {
+        const { editMovie, history } = this.props
+
         e.preventDefault();
 
         const editedMovie = {
             ...this.state
         }
-        this.props.editMovie(this.id, editedMovie);
+        editMovie(this.id, editedMovie);
+        history.push('/');
+
     }
 
     handleForChange = e => {
